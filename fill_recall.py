@@ -51,10 +51,10 @@ def sentence_for(value):
         return f"REVIEW: invalid month in \"{m.group(0)}\"", True
 
     if year <= 2024:
-        return f"We last connected in {year} but {clause}.  Recall", False
+        return f"We last connected in {year} but {clause}.  Recall ", False
     if year == 2025 and month <= 9:
-        return f"When we connected in {MONTHS[month - 1]} ’25 {clause}.  Recall", False
-    return f"When we connected in {MONTHS[month - 1]} {clause}.  Recall", False
+        return f"When we connected in {MONTHS[month - 1]} ’25 {clause}.  Recall ", False
+    return f"When we connected in {MONTHS[month - 1]} {clause}.  Recall ", False
 
 
 def main():
