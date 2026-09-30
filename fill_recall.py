@@ -28,8 +28,11 @@ def sentence_for(value):
         return f"REVIEW: column A is not text ({value!r})", True
 
     text = " ".join(value.lower().split())
+    # "not raising" first: "not raising now" also contains "raising now".
     if "not raising" in text:
         clause = "you were not raising"
+    elif "raising now" in text:
+        clause = "you were considering a round"
     elif "early" in text:
         clause = "it was early for us"
     else:
@@ -37,11 +40,11 @@ def sentence_for(value):
 
     m = DATE_RE.search(value)
     if not m and clause is None:
-        return "REVIEW: no date and no \"early\"/\"not raising\"", True
+        return "REVIEW: no date and no \"early\"/\"not raising\"/\"raising now\"", True
     if not m:
         return "REVIEW: no date", True
     if clause is None:
-        return "REVIEW: no \"early\" or \"not raising\"", True
+        return "REVIEW: no \"early\", \"not raising\" or \"raising now\"", True
 
     month = int(m.group(1))
     year = int(m.group(2))
@@ -49,6 +52,16 @@ def sentence_for(value):
         year += 2000
     if not 1 <= month <= 12:
         return f"REVIEW: invalid month in \"{m.group(0)}\"", True
+
+    # "raising now" puts a comma after the date and has no "We last connected ... but" form.
+    if clause == "you were considering a round":
+        if year <= 2024:
+            when = str(year)
+        elif year == 2025 and month <= 9:
+            when = f"{MONTHS[month - 1]} ’25"
+        else:
+            when = MONTHS[month - 1]
+        return f"When we connected in {when}, {clause}.  Recall ", False
 
     if year <= 2024:
         return f"We last connected in {year} but {clause}.  Recall ", False
