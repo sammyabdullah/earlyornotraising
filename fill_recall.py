@@ -53,21 +53,23 @@ def sentence_for(value):
     if not 1 <= month <= 12:
         return f"REVIEW: invalid month in \"{m.group(0)}\"", True
 
+    # Months from the last 11 months show the bare month name; older ones get the
+    # year suffix (e.g. on 10/1/2026, 11/25 -> "November", 10/25 -> "October ’25").
+    today = datetime.date.today()
+    months_ago = (today.year * 12 + today.month) - (year * 12 + month)
+    if year <= 2024:
+        when = str(year)
+    elif months_ago >= 12:
+        when = f"{MONTHS[month - 1]} ’{year % 100:02d}"
+    else:
+        when = MONTHS[month - 1]
+
     # "raising now" puts a comma after the date and has no "We last connected ... but" form.
     if clause == "you were considering a round":
-        if year <= 2024:
-            when = str(year)
-        elif year == 2025 and month <= 9:
-            when = f"{MONTHS[month - 1]} ’25"
-        else:
-            when = MONTHS[month - 1]
         return f"When we connected in {when}, {clause}.  Recall ", False
-
     if year <= 2024:
         return f"We last connected in {year} but {clause}.  Recall ", False
-    if year == 2025 and month <= 9:
-        return f"When we connected in {MONTHS[month - 1]} ’25 {clause}.  Recall ", False
-    return f"When we connected in {MONTHS[month - 1]} {clause}.  Recall ", False
+    return f"When we connected in {when} {clause}.  Recall ", False
 
 
 def main():
